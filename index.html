@@ -536,6 +536,26 @@ main{margin-left:var(--nav-w);}
 }
 .short-fallback:hover{color:var(--white); background:rgba(10,10,10,.85);}
 
+/* ============ JOGOS DIVULGADOS ============ */
+.games-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:28px; max-width:1240px;}
+.game-card{min-width:0; display:flex; flex-direction:column; padding:8px;}
+.game-cover{aspect-ratio:460/215; overflow:hidden; background:var(--bg-alt);}
+.game-cover img{width:100%; height:100%; object-fit:cover; transition:transform .4s var(--ease);}
+.game-card:hover .game-cover img{transform:scale(1.03);}
+.game-body{padding:26px 20px 20px; display:flex; flex-direction:column; flex:1; align-items:flex-start;}
+.game-status{font-family:var(--font-body); font-size:.78rem; letter-spacing:.08em; padding:5px 10px; border:1px solid var(--border-light); margin-bottom:18px;}
+.game-status.published{background:var(--text); color:var(--bg); border-color:var(--text);}
+.game-actions{display:flex; flex-wrap:wrap; gap:12px 24px; margin-top:auto;}
+.game-studio{font-family:var(--font-body); color:var(--text-dim); font-size:.85rem; letter-spacing:.08em; margin-bottom:10px;}
+.game-body h3{font-size:clamp(1.1rem,2vw,1.5rem); margin-bottom:16px;}
+.game-description{font-family:var(--font-read); letter-spacing:normal; color:var(--text-dim); font-size:.95rem; line-height:1.7;}
+.game-genres{display:flex; flex-wrap:wrap; gap:8px; margin:22px 0 28px;}
+.game-genres li{border:1px solid var(--border-light); padding:4px 10px; color:var(--text-dim); font-size:.78rem;}
+.game-link{margin-top:auto; display:inline-flex; align-items:center; gap:18px; padding:12px 0; min-height:44px; border-bottom:1px solid var(--border-light); font-size:.95rem;}
+.game-link:hover{border-color:var(--white);}
+.game-link:focus-visible{outline:2px solid var(--white); outline-offset:6px;}
+@media(max-width:1050px){.games-grid{grid-template-columns:1fr;}}
+
 /* ============ CONTATO ============ */
 .contact-inner{
   display:flex; flex-direction:column; align-items:flex-start; gap:28px;
@@ -615,6 +635,7 @@ footer{
       <li><a href="#inicio" class="active">Início</a></li>
       <li><a href="#sobre">Sobre</a></li>
       <li><a href="#experiencia">Experiência</a></li>
+      <li><a href="#jogos">Jogos em destaque</a></li>
       <li><a href="#videos">Vídeos</a></li>
       <li><a href="#contato">Contato</a></li>
     </ul>
@@ -640,7 +661,7 @@ footer{
         <span class="line"><span>Eu transformo jogos</span></span>
         <span class="line"><span>em histórias que prendem.</span></span>
       </h1>
-      <p class="lede">Portfólio de gugahlins — vídeos sobre games, roteiro e storytelling que já somam +9 milhões de visualizações no YouTube. Manda os links dos seus vídeos atuais que eu incluo aqui.</p>
+      <p class="lede">Portfólio de gugahlins — vídeos sobre games, roteiro e storytelling que já somam +9 milhões de visualizações no YouTube.</p>
       <div class="hero-ctas">
         <a href="#videos" class="btn primary">Ver vídeos</a>
         <a href="#contato" class="btn ghost">Falar comigo</a>
@@ -713,6 +734,42 @@ footer{
           <p>Suporte e manutenção de hardware da estrutura gamer, mantendo os setups sempre prontos pra competição.</p>
         </li>
       </ul>
+    </div>
+  </section>
+
+  <!-- ================= JOGOS ================= -->
+  <section id="jogos" aria-labelledby="jogos-title">
+    <div class="section-head" data-reveal>
+      <div class="eyebrow">// jogos em destaque</div>
+      <h2 class="section-title" id="jogos-title">Do jogo pra minha comunidade</h2>
+      <p class="lede">Jogos que já passaram pelo canal e o que vem por aí. Histórias e mecânicas que merecem ser descobertas.</p>
+    </div>
+    <div class="games-grid">
+      <article class="game-card slot" data-reveal>
+        <div class="game-cover"><img src="assets/motorslice.jpg" alt="Arte de divulgação de MOTORSLICE" width="460" height="215" loading="lazy"></div>
+        <div class="game-body">
+          <span class="game-status published">Conteúdo publicado</span>
+          <p class="game-studio">Regular Studio</p>
+          <h3>MOTORSLICE</h3>
+          <p class="game-description">Parkour, uma motosserra e máquinas gigantes. Uma aventura de ação entre as ruínas de um mundo brutalista.</p>
+          <ul class="game-genres" aria-label="Gêneros de MOTORSLICE"><li>Parkour</li><li>Ação e aventura</li><li>Single-player</li></ul>
+          <div class="game-actions">
+          <a class="game-link" href="https://www.youtube.com/shorts/PLeeW6d4FSQ" target="_blank" rel="noopener noreferrer" aria-label="Assistir ao Short de MOTORSLICE no YouTube (abre em nova aba)">Assistir ao Short <span aria-hidden="true">↗</span></a>
+          <a class="game-link" href="https://store.steampowered.com/app/2830030/" target="_blank" rel="noopener noreferrer" aria-label="Conhecer MOTORSLICE na Steam (abre em nova aba)">Conhecer na Steam <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </article>
+      <article class="game-card slot" data-reveal>
+        <div class="game-cover"><img src="assets/repair-in-the-space.jpg" alt="Arte de divulgação de RePair in the Space" width="460" height="215" loading="lazy"></div>
+        <div class="game-body">
+          <span class="game-status">Em breve no canal</span>
+          <p class="game-studio">2JDev</p>
+          <h3>RePair in the Space</h3>
+          <p class="game-description">Um alienígena, um robô e uma nave precisando de reparos. Crie itens, troque de personagem e encare o caos sozinho ou com um amigo.</p>
+          <ul class="game-genres" aria-label="Gêneros de RePair in the Space"><li>Co-op local</li><li>Espaço</li><li>Humor</li></ul>
+          <a class="game-link" href="https://store.steampowered.com/app/4738470/" target="_blank" rel="noopener noreferrer" aria-label="Conhecer RePair in the Space na Steam (abre em nova aba)">Conhecer na Steam <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
     </div>
   </section>
 
