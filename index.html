@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gugahlins — Criador de Conteúdo sobre Jogos</title>
+
+<!-- Fonte "Minecraft" (rendição livre, licença OFL, IdreesInc/Minecraft-Font) para títulos -->
+<style>
+@font-face{
+  font-family:'Minecraft';
+  src:url('https://cdn.jsdelivr.net/gh/IdreesInc/Minecraft-Font@main/Minecraft.otf') format('opentype');
+  font-weight:400; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:'Minecraft';
+  src:url('https://cdn.jsdelivr.net/gh/IdreesInc/Minecraft-Font@main/Minecraft-Bold.otf') format('opentype');
+  font-weight:700; font-style:normal; font-display:swap;
+}
+</style>
+<!-- Fonte "Bebas Neue" (condensada, impactante, estilo próximo à família usada pela Fortnite/Burbank, que é paga) para textos menores.
+     Obs: Bebas Neue só tem versão maiúscula — por isso os parágrafos mais longos usam uma fonte neutra à parte (--font-read), pra não quebrar a leitura. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#0a0a0a;
+  --bg-alt:#111111;
+  --surface:#1a1a1a;
+  --surface-2:#212121;
+  --border:#2e2e2e;
+  --border-light:#454545;
+  --text:#efefef;
+  --text-dim:#9a9a9a;
+  --text-dimmer:#5f5f5f;
+  --white:#ffffff;
+
+  --font-display:'Minecraft', 'Courier New', monospace;
+  --font-body:'Bebas Neue', 'Arial Narrow', sans-serif;
+  --font-read:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+
+  --nav-w:220px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:auto;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-weight:400;
+  letter-spacing:.02em;
+  line-height:1.6;
+  overflow-x:hidden;
+  cursor:default;
+  -webkit-text-size-adjust:100%;
+}
+
+/* textura de ruído sutil, só pra tirar a chapadez do preto */
+body::before{
+  content:'';
+  position:fixed; inset:0;
+  pointer-events:none;
+  z-index:2;
+  opacity:.035;
+  mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+a{color:inherit; text-decoration:none;}
+ul{list-style:none;}
+img{max-width:100%; display:block;}
+
+h1,h2,h3,.font-display{
+  font-family:var(--font-display);
+  font-weight:400;
+  line-height:1.35;
+  letter-spacing:.01em;
+}
+
+.eyebrow{
+  font-family:var(--font-display);
+  font-size:.72rem;
+  color:var(--text-dimmer);
+  letter-spacing:.04em;
+}
+
+.section-title{
+  font-size:clamp(1.4rem,3vw,2.1rem);
+  color:var(--white);
+  margin-bottom:14px;
+}
+
+.lede{
+  font-family:var(--font-read);
+  color:var(--text-dim);
+  font-size:1rem;
+  max-width:56ch;
+  font-weight:300;
+  letter-spacing:normal;
+}
+
+section{
+  padding:120px clamp(24px,6vw,72px);
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+
+.section-head{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-bottom:56px;
+  max-width:1240px;
+}
+
+/* ============ SCROLLBAR ============ */
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--surface-2); border:2px solid var(--bg);}
+::-webkit-scrollbar-thumb:hover{background:var(--border-light);}
+
+/* ============ SLOT / PIXEL BORDER (elemento de assinatura) ============ */
+/* Bordas em bisel imitando os slots de inventário do Minecraft:
+   claro no topo/esquerda, escuro embaixo/direita — é o único
+   "adorno" recorrente do site, reaproveitado em cards, botões e tags. */
+.slot{
+  background:var(--surface);
+  border-top:2px solid var(--border-light);
+  border-left:2px solid var(--border-light);
+  border-bottom:2px solid #000;
+  border-right:2px solid #000;
+  box-shadow: inset 0 0 0 2px var(--bg);
+}
+.slot-inset{
+  background:var(--bg-alt);
+  border-top:2px solid #000;
+  border-left:2px solid #000;
+  border-bottom:2px solid var(--border-light);
+  border-right:2px solid var(--border-light);
+}
+
+/* ============ NAV (lateral, estilo menu de pausa) ============ */
+.nav{
+  position:fixed;
+  top:0; left:0;
+  width:var(--nav-w);
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:32px 20px;
+  background:var(--bg-alt);
+  border-right:1px solid var(--border);
+  z-index:50;
+  transition:transform .4s var(--ease);
+}
+.nav-top{display:flex; flex-direction:column; gap:44px;}
+.brand{
+  font-family:var(--font-display);
+  font-size:1rem;
+  color:var(--white);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.brand-mark{
+  width:22px; height:22px;
+  background:var(--text-dim);
+  flex:none;
+}
+.nav-links{display:flex; flex-direction:column; gap:4px;}
+.nav-links a{
+  font-family:var(--font-body);
+  font-size:.82rem;
+  font-weight:500;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  color:var(--text-dimmer);
+  padding:10px 10px;
+  position:relative;
+  transition:color .25s var(--ease), padding-left .25s var(--ease);
+}
+.nav-links a::before{
+  content:'';
+  position:absolute; left:0; top:50%;
+  width:3px; height:0;
+  background:var(--white);
+  transform:translateY(-50%);
+  transition:height .25s var(--ease);
+}
+.nav-links a:hover{color:var(--text); padding-left:16px;}
+.nav-links a.active{color:var(--white); padding-left:16px;}
+.nav-links a.active::before{height:60%;}
+
+.nav-bottom{display:flex; flex-direction:column; gap:18px;}
+.socials{display:flex; gap:14px; flex-wrap:wrap;}
+.socials a{
+  width:34px; height:34px;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text-dim);
+  transition:color .25s var(--ease), transform .25s var(--ease);
+}
+.socials a:hover{color:var(--white); transform:translateY(-2px);}
+.socials svg{width:16px; height:16px; fill:currentColor;}
+.status{
+  font-size:.7rem;
+  color:var(--text-dimmer);
+  display:flex; align-items:center; gap:8px;
+  font-family:var(--font-body);
+  letter-spacing:.03em;
+}
+.status-dot{
+  width:7px; height:7px;
+  background:var(--text-dim);
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:.35;}
+  50%{opacity:1;}
+}
+
+.nav-toggle{
+  display:none;
+  position:fixed;
+  top:18px; right:18px;
+  z-index:60;
+  width:44px; height:44px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  align-items:center; justify-content:center;
+  flex-direction:column;
+  gap:5px;
+  touch-action:manipulation;
+}
+.nav-toggle span{width:18px; height:2px; background:var(--text); transition:transform .3s var(--ease), opacity .3s var(--ease);}
+.nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.nav-toggle.open span:nth-child(2){opacity:0;}
+.nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+/* ============ MAIN / HERO ============ */
+main{margin-left:var(--nav-w);}
+
+.hero{
+  min-height:100vh;
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  border-bottom:1px solid var(--border);
+  position:relative;
+  overflow:hidden;
+}
+
+/* grid de fundo animado, tipo "chunks" do mapa, bem discreto */
+.hero-grid{
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size:48px 48px;
+  opacity:.25;
+  transform:translate3d(0,0,0);
+  animation:drift 40s linear infinite;
+}
+@keyframes drift{
+  from{background-position:0 0, 0 0;}
+  to{background-position:480px 240px, 480px 240px;}
+}
+
+/* blocos flutuando ao fundo — bem sutis, tons de cinza só */
+.floaters{position:absolute; inset:0; pointer-events:none;}
+.floaters i{
+  position:absolute;
+  border:2px solid var(--border-light);
+  opacity:.35;
+  animation:float 14s ease-in-out infinite;
+}
+.floaters i:nth-child(1){width:38px;height:38px; top:18%; left:78%; animation-delay:0s;}
+.floaters i:nth-child(2){width:22px;height:22px; top:62%; left:85%; animation-delay:-4s;}
+.floaters i:nth-child(3){width:16px;height:16px; top:75%; left:70%; animation-delay:-8s;}
+.floaters i:nth-child(4){width:28px;height:28px; top:30%; left:88%; animation-delay:-11s;}
+@keyframes float{
+  0%,100%{transform:translateY(0) rotate(0deg);}
+  50%{transform:translateY(-26px) rotate(8deg);}
+}
+
+.hero-inner{position:relative; z-index:3; max-width:820px;}
+.hero .eyebrow{margin-bottom:20px; display:flex; align-items:center; gap:10px;}
+.hero .eyebrow .caret{
+  display:inline-block; width:9px; height:16px; background:var(--white);
+  animation:blink 1s steps(1) infinite;
+}
+@keyframes blink{50%{opacity:0;}}
+
+.hero h1{
+  font-size:clamp(2.2rem,6.4vw,4.6rem);
+  color:var(--white);
+  overflow:hidden;
+}
+.hero h1 .line{display:block; overflow:hidden;}
+.hero h1 .line span{
+  display:inline-block;
+  transform:translateY(110%);
+  animation:rise .7s var(--ease) forwards;
+}
+.hero h1 .line:nth-child(1) span{animation-delay:.15s;}
+.hero h1 .line:nth-child(2) span{animation-delay:.32s; color:var(--text-dim);}
+@keyframes rise{to{transform:translateY(0);}}
+
+.hero .lede{margin-top:24px; font-size:1.05rem; opacity:0; animation:fadeUp .8s var(--ease) .6s forwards;}
+.hero-ctas{display:flex; gap:14px; margin-top:40px; flex-wrap:wrap; opacity:0; animation:fadeUp .8s var(--ease) .78s forwards;}
+@keyframes fadeUp{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+
+.btn{
+  font-family:var(--font-body);
+  font-size:.85rem;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+  padding:15px 26px;
+  color:var(--white);
+  transition:transform .2s var(--ease), background .2s var(--ease);
+}
+.btn.primary{background:var(--surface-2);}
+.btn.primary:hover{transform:translateY(-2px); background:#2a2a2a;}
+.btn.ghost{border:1px solid var(--border-light); color:var(--text-dim);}
+.btn.ghost:hover{color:var(--white); border-color:var(--text-dim); transform:translateY(-2px);}
+
+.scroll-cue{
+  position:absolute; bottom:36px; left:0;
+  display:flex; align-items:center; gap:10px;
+  color:var(--text-dimmer);
+  font-size:.68rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  z-index:3;
+}
+.scroll-cue .bar{width:1px; height:34px; background:var(--border-light); position:relative; overflow:hidden;}
+.scroll-cue .bar::after{
+  content:''; position:absolute; top:-100%; left:0; width:100%; height:100%;
+  background:var(--white);
+  animation:scrollcue 2.2s ease-in-out infinite;
+}
+@keyframes scrollcue{
+  0%{top:-100%;} 60%{top:100%;} 100%{top:100%;}
+}
+
+/* ============ REVEAL (um único padrão de entrada por seção) ============ */
+[data-reveal]{
+  opacity:0;
+  transform:translateY(28px);
+  transition:opacity .8s var(--ease), transform .8s var(--ease);
+}
+[data-reveal].in{opacity:1; transform:translateY(0);}
+[data-reveal-stagger] > *{
+  opacity:0;
+  transform:translateY(24px);
+  transition:opacity .6s var(--ease), transform .6s var(--ease);
+}
+[data-reveal-stagger].in > *{opacity:1; transform:translateY(0);}
+
+/* ============ SOBRE ============ */
+.about-grid{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  gap:64px;
+  align-items:start;
+  max-width:1240px;
+}
+.avatar-slot{
+  aspect-ratio:1/1;
+  padding:14px;
+  overflow:hidden;
+}
+.avatar-slot img{
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+  filter:grayscale(1) contrast(1.05);
+  transition:filter .4s var(--ease);
+}
+.avatar-slot:hover img{filter:grayscale(.15) contrast(1.05);}
+.about-text p{font-family:var(--font-read); letter-spacing:normal; color:var(--text-dim); font-weight:300; margin-bottom:18px; max-width:64ch;}
+.about-text strong{color:var(--text); font-weight:500;}
+
+.tags{display:flex; flex-wrap:wrap; gap:10px; margin-top:28px;}
+.tag{
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+  padding:8px 14px;
+  color:var(--text-dim);
+}
+
+.stat-block{
+  margin-top:32px;
+  padding:24px 28px;
+  display:inline-flex;
+  align-items:baseline;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.stat-number{
+  font-family:var(--font-display);
+  font-size:clamp(1.8rem,3.4vw,2.6rem);
+  color:var(--white);
+  line-height:1;
+}
+.stat-label{
+  font-family:var(--font-read);
+  letter-spacing:normal;
+  font-size:.82rem;
+  color:var(--text-dim);
+  max-width:22ch;
+}
+
+/* ============ EXPERIÊNCIA ============ */
+.exp-grid{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:48px;
+  align-items:start;
+  max-width:1240px;
+}
+.exp-roles .eyebrow{margin-bottom:16px;}
+.exp-highlights{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+.exp-highlights li{
+  list-style:none;
+  padding:20px 22px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  transition:transform .3s var(--ease), border-color .3s var(--ease);
+}
+.exp-highlights li:hover{transform:translateX(6px);}
+.exp-highlights p{
+  font-family:var(--font-read);
+  letter-spacing:normal;
+  color:var(--text-dim);
+  font-size:.92rem;
+  font-weight:300;
+  max-width:60ch;
+}
+.exp-highlights strong{color:var(--text); font-weight:500;}
+.exp-tag{
+  font-family:var(--font-body);
+  font-size:.68rem;
+  color:var(--text-dimmer);
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+/* ============ VÍDEOS (scroll horizontal) ============ */
+.video-scroll-wrap{
+  position:relative;
+  /* fade nas bordas via mask, sem precisar de overlay extra */
+  -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 80px, #000 calc(100% - 80px), transparent 100%);
+  mask-image:linear-gradient(90deg, transparent 0, #000 80px, #000 calc(100% - 80px), transparent 100%);
+}
+.video-scroll{
+  overflow-x:auto;
+  overflow-y:hidden;
+  overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;
+  scrollbar-width:none;
+  padding:4px 80px;
+  margin:0 -80px;
+  cursor:grab;
+}
+.video-scroll:active{cursor:grabbing;}
+.video-scroll::-webkit-scrollbar{display:none;}
+.video-scroll-track{
+  display:flex;
+  gap:20px;
+  width:max-content;
+}
+.short-card{
+  flex:none;
+  width:220px;
+  aspect-ratio:9/16;
+  padding:8px;
+  scroll-snap-align:center;
+  position:relative;
+  transition:transform .35s var(--ease), border-color .35s var(--ease);
+  cursor:pointer;
+}
+.short-card:hover{transform:translateY(-6px);}
+.short-card img{
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+}
+.short-card iframe{
+  width:100%; height:100%;
+  border:0;
+}
+.short-play{
+  position:absolute;
+  inset:8px;
+  margin:auto;
+  width:52px; height:52px;
+  border:1px solid var(--border-light);
+  background:rgba(10,10,10,.55);
+  backdrop-filter:blur(2px);
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .3s var(--ease), border-color .3s var(--ease), background .3s var(--ease);
+}
+.short-card:hover .short-play{transform:scale(1.1); border-color:var(--white); background:rgba(10,10,10,.7);}
+.short-play span{
+  width:0; height:0;
+  border-top:8px solid transparent; border-bottom:8px solid transparent;
+  border-left:13px solid var(--white);
+  margin-left:3px;
+}
+.short-card.img-fail{background:var(--surface-2);}
+.short-card.img-fail img{display:none;}
+.short-fallback{
+  position:absolute;
+  left:8px; right:8px; bottom:8px;
+  text-align:center;
+  padding:8px 6px;
+  font-size:.68rem;
+  letter-spacing:.02em;
+  color:var(--text-dim);
+  background:rgba(10,10,10,.6);
+  transition:color .25s var(--ease), background .25s var(--ease);
+}
+.short-fallback:hover{color:var(--white); background:rgba(10,10,10,.85);}
+
+/* ============ CONTATO ============ */
+.contact-inner{
+  display:flex; flex-direction:column; align-items:flex-start; gap:28px;
+}
+.contact-title{font-size:clamp(1.8rem,5vw,3.2rem); color:var(--white); max-width:16ch;}
+.contact-email{
+  font-family:var(--font-display);
+  font-size:clamp(1rem,2.4vw,1.3rem);
+  color:var(--text-dim);
+  padding-bottom:6px;
+  border-bottom:1px solid var(--border-light);
+  transition:color .25s var(--ease), border-color .25s var(--ease);
+}
+.contact-email:hover{color:var(--white); border-color:var(--white);}
+
+footer{
+  padding:28px clamp(24px,6vw,72px);
+  display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  color:var(--text-dimmer);
+  font-size:.72rem;
+  letter-spacing:.03em;
+}
+
+/* ============ RESPONSIVO ============ */
+@media (max-width:1024px){
+  .about-grid{grid-template-columns:1fr;}
+  .avatar-slot{width:200px;}
+  .exp-grid{grid-template-columns:1fr;}
+}
+
+@media (max-width:820px){
+  .nav{
+    transform:translateX(-100%);
+    width:min(78vw,300px);
+  }
+  .nav.open{transform:translateX(0);}
+  .nav-toggle{display:flex;}
+  main{margin-left:0;}
+  section{padding:88px 22px;}
+  .floaters{display:none;}
+  .scroll-cue{display:none;}
+  .avatar-slot{width:180px; margin:0 auto;}
+  .about-text{text-align:left;}
+  .stat-block{width:100%; justify-content:center; text-align:center;}
+  .video-scroll-wrap{
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%);
+    mask-image:linear-gradient(90deg, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%);
+  }
+  .video-scroll{padding:4px 22px; margin:0 -22px;}
+  .short-card{width:170px;}
+}
+
+@media (max-width:400px){
+  .hero h1{font-size:clamp(1.9rem,9vw,2.6rem);}
+  .section-title{font-size:clamp(1.25rem,6vw,1.6rem);}
+  .btn{padding:14px 20px; font-size:.78rem;}
+  .short-card{width:150px;}
+  .nav-toggle{top:14px; right:14px;}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important;}
+  html{scroll-behavior:auto;}
+}
+</style>
+</head>
+<body>
+
+<button class="nav-toggle" id="navToggle" aria-label="Abrir menu">
+  <span></span><span></span><span></span>
+</button>
+
+<nav class="nav" id="siteNav">
+  <div class="nav-top">
+    <div class="brand"><span class="brand-mark"></span>GUGAHLINS</div>
+    <ul class="nav-links">
+      <li><a href="#inicio" class="active">Início</a></li>
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#experiencia">Experiência</a></li>
+      <li><a href="#videos">Vídeos</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+  </div>
+  <div class="nav-bottom">
+    <div class="socials">
+      <a href="https://www.youtube.com/@gugahlins" target="_blank" rel="noopener" aria-label="YouTube" title="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.5 12 3.5 12 3.5s-7.6 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.8.6 9.4.6 9.4.6s7.6 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.5V8.5L15.8 12Z"/></svg></a>
+      <a href="https://www.instagram.com/gugah.lins" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 2 .3 2.5.5.6.2 1 .5 1.5 1 .5.5.8.9 1 1.5.2.5.4 1.3.5 2.5.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 2-.5 2.5-.2.6-.5 1-1 1.5-.5.5-.9.8-1.5 1-.5.2-1.3.4-2.5.5-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-2-.3-2.5-.5-.6-.2-1-.5-1.5-1-.5-.5-.8-.9-1-1.5-.2-.5-.4-1.3-.5-2.5C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-2 .5-2.5.2-.6.5-1 1-1.5.5-.5.9-.8 1.5-1 .5-.2 1.3-.4 2.5-.5C9.4 2.2 9.8 2.2 12 2.2Zm0 3a6.8 6.8 0 1 0 0 13.6 6.8 6.8 0 0 0 0-13.6Zm0 11.2a4.4 4.4 0 1 1 0-8.8 4.4 4.4 0 0 1 0 8.8Zm7-11.4a1.6 1.6 0 1 1-3.1 0 1.6 1.6 0 0 1 3.1 0Z"/></svg></a>
+    </div>
+    <div class="status"><span class="status-dot"></span>Disponível para projetos</div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="inicio">
+    <div class="hero-grid"></div>
+    <div class="floaters"><i></i><i></i><i></i><i></i></div>
+    <div class="hero-inner">
+      <div class="eyebrow"><span class="caret"></span>guga lins · criador de conteúdo</div>
+      <h1>
+        <span class="line"><span>Eu transformo jogos</span></span>
+        <span class="line"><span>em histórias que prendem.</span></span>
+      </h1>
+      <p class="lede">Portfólio de gugahlins — vídeos sobre games, roteiro e storytelling que já somam +9 milhões de visualizações no YouTube. Manda os links dos seus vídeos atuais que eu incluo aqui.</p>
+      <div class="hero-ctas">
+        <a href="#videos" class="btn primary">Ver vídeos</a>
+        <a href="#contato" class="btn ghost">Falar comigo</a>
+      </div>
+    </div>
+    <div class="scroll-cue"><div class="bar"></div>role</div>
+  </section>
+
+  <!-- ================= SOBRE ================= -->
+  <section id="sobre">
+    <div class="section-head" data-reveal>
+      <div class="eyebrow">// sobre</div>
+      <h2 class="section-title">Quem tá do outro lado da tela</h2>
+    </div>
+    <div class="about-grid" data-reveal>
+      <div class="avatar-slot slot">
+        <img src="assets/avatar.jpg" alt="Foto de gugahlins">
+      </div>
+      <div class="about-text">
+        <p>Sou um profissional criativo apaixonado por games, tecnologia e criação de conteúdo, com minha principal atuação voltada para o universo dos jogos e do entretenimento digital.</p>
+        <p>Meu principal projeto é o <strong>gugahlins</strong>, meu canal no YouTube, onde transformo minha paixão por games em conteúdo para milhares de pessoas. Ao longo da minha trajetória como criador, o canal já ultrapassou a marca de <strong>9 milhões de visualizações</strong> acumuladas, resultado de um crescimento construído em pouco tempo de produção de conteúdo.</p>
+        <p>No canal, trabalho principalmente com apresentação de jogos, roteiros, storytelling e conteúdos voltados para gameplay, buscando transformar cada jogo em uma experiência interessante para quem está assistindo. Meu foco não é apenas mostrar um game, mas encontrar aquilo que faz ele ser especial — suas mecânicas, personagens, histórias e momentos — e transformar isso em uma narrativa capaz de prender a atenção do público.</p>
+        <p>Também desenvolvo conteúdos para YouTube Shorts e Instagram Reels, adaptando ideias e roteiros para formatos rápidos e dinâmicos. Meu processo envolve criação de ganchos, desenvolvimento de roteiro e construção de narrativas pensadas para gerar curiosidade, retenção e conexão com o público.</p>
+        <p>Além da criação de conteúdo, tenho experiência com a parte prática de um negócio voltado ao entretenimento e gaming, trabalhando com organização, planejamento, precificação, reservas e estruturação de serviços. Essa experiência me permitiu desenvolver uma visão que une criatividade, estratégia e execução.</p>
+        <p>Acredito que um bom conteúdo não precisa apenas informar. Ele precisa prender a atenção, transmitir uma ideia e fazer o público querer continuar assistindo.</p>
+        <div class="tags">
+          <span class="tag slot">Roteiro</span>
+          <span class="tag slot">Storytelling</span>
+          <span class="tag slot">Gameplay</span>
+          <span class="tag slot">Shorts &amp; Reels</span>
+          <span class="tag slot">Planejamento</span>
+          <span class="tag slot">Precificação</span>
+        </div>
+        <div class="stat-block slot">
+          <span class="stat-number">9M+</span>
+          <span class="stat-label">visualizações acumuladas no canal</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EXPERIÊNCIA ================= -->
+  <section id="experiencia">
+    <div class="section-head" data-reveal>
+      <div class="eyebrow">// experiência</div>
+      <h2 class="section-title">Passagem pela Base Gaming</h2>
+      <p class="lede">A Base Gaming é uma das maiores estruturas gamers do Nordeste, referência em Recife (PE) — um complexo com arena, estúdio e ecossistema completo pra jogadores e criadores. Foi lá que boa parte da minha experiência prática foi construída.</p>
+    </div>
+    <div class="exp-grid" data-reveal>
+      <div class="exp-roles">
+        <div class="eyebrow">Minhas frentes por lá</div>
+        <div class="tags">
+          <span class="tag slot">Criador de Conteúdo</span>
+          <span class="tag slot">Hardware Technician</span>
+          <span class="tag slot">Social Media</span>
+          <span class="tag slot">Operação de Eventos</span>
+        </div>
+      </div>
+      <ul class="exp-highlights">
+        <li class="slot">
+          <span class="exp-tag">destaque</span>
+          <p>Evento de <strong>League of Legends</strong> com patrocínio da <strong>Riot Games</strong> e da <strong>Redragon</strong> — atuei na parte operacional, de bastidores à execução no dia.</p>
+        </li>
+        <li class="slot">
+          <span class="exp-tag">conteúdo</span>
+          <p>Entrevista com o streamer <strong>Gordox</strong>, produzida e roteirizada por mim pro canal.</p>
+        </li>
+        <li class="slot">
+          <span class="exp-tag">técnico</span>
+          <p>Suporte e manutenção de hardware da estrutura gamer, mantendo os setups sempre prontos pra competição.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ================= VÍDEOS ================= -->
+  <section id="videos">
+    <div class="section-head" data-reveal>
+      <div class="eyebrow">// vídeos</div>
+      <h2 class="section-title">O que eu faço no canal</h2>
+      <p class="lede">Uma seleção direto do meu YouTube. Arraste pro lado ou use a roda do mouse pra navegar.</p>
+    </div>
+    <div class="video-scroll-wrap" data-reveal>
+      <div class="video-scroll" id="videoScroll">
+        <div class="video-scroll-track">
+          <div class="short-card slot" data-id="lhOjg_UD7dw"><img src="https://i.ytimg.com/vi/lhOjg_UD7dw/hqdefault.jpg" alt="Miniatura de vídeo do canal gugahlins" loading="eager" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/shorts/lhOjg_UD7dw" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+          <div class="short-card slot" data-id="AD8tXokriE4"><img src="https://i.ytimg.com/vi/AD8tXokriE4/hqdefault.jpg" alt="Miniatura de vídeo do canal gugahlins" loading="eager" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/shorts/AD8tXokriE4" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+          <div class="short-card slot" data-id="gZKXyv414zI"><img src="https://i.ytimg.com/vi/gZKXyv414zI/hqdefault.jpg" alt="Miniatura de vídeo do canal gugahlins" loading="eager" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/shorts/gZKXyv414zI" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+          <div class="short-card slot" data-id="0yVmo5_8MAc"><img src="https://i.ytimg.com/vi/0yVmo5_8MAc/hqdefault.jpg" alt="Miniatura de vídeo do canal gugahlins" loading="eager" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/shorts/0yVmo5_8MAc" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+          <div class="short-card slot" data-id="PLeeW6d4FSQ"><img src="https://i.ytimg.com/vi/PLeeW6d4FSQ/hqdefault.jpg" alt="Miniatura de vídeo do canal gugahlins" loading="eager" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/shorts/PLeeW6d4FSQ" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+          <div class="short-card slot" data-id="UQ69_2NXLV4"><img src="https://i.ytimg.com/vi/UQ69_2NXLV4/hqdefault.jpg" alt="Miniatura de vídeo do canal gugahlins" loading="eager" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/shorts/UQ69_2NXLV4" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+          <div class="short-card slot" data-id="g8ezVW6K4bE"><img src="https://i.ytimg.com/vi/g8ezVW6K4bE/hqdefault.jpg" alt="Miniatura de vídeo do canal gugahlins" loading="eager" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/shorts/g8ezVW6K4bE" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+        </div>
+      </div>
+    </div>
+    <a href="https://www.youtube.com/@gugahlins" target="_blank" rel="noopener" class="btn ghost" style="margin-top:32px; display:inline-block;">Ver canal completo →</a>
+  </section>
+
+  <!-- ================= CONTATO ================= -->
+  <section id="contato" style="border-bottom:none;">
+    <div class="contact-inner" data-reveal>
+      <div class="eyebrow">// contato</div>
+      <h2 class="contact-title">Bora criar alguma coisa juntos?</h2>
+      <a href="mailto:luizgustavolins0@gmail.com" class="contact-email">luizgustavolins0@gmail.com</a>
+      <div class="socials">
+        <a href="https://www.youtube.com/@gugahlins" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.5 12 3.5 12 3.5s-7.6 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.8.6 9.4.6 9.4.6s7.6 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.5V8.5L15.8 12Z"/></svg></a>
+        <a href="https://www.instagram.com/gugah.lins" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 2 .3 2.5.5.6.2 1 .5 1.5 1 .5.5.8.9 1 1.5.2.5.4 1.3.5 2.5.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 2-.5 2.5-.2.6-.5 1-1 1.5-.5.5-.9.8-1.5 1-.5.2-1.3.4-2.5.5-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-2-.3-2.5-.5-.6-.2-1-.5-1.5-1-.5-.5-.8-.9-1-1.5-.2-.5-.4-1.3-.5-2.5C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-2 .5-2.5.2-.6.5-1 1-1.5.5-.5.9-.8 1.5-1 .5-.2 1.3-.4 2.5-.5C9.4 2.2 9.8 2.2 12 2.2Zm0 3a6.8 6.8 0 1 0 0 13.6 6.8 6.8 0 0 0 0-13.6Zm0 11.2a4.4 4.4 0 1 1 0-8.8 4.4 4.4 0 0 1 0 8.8Zm7-11.4a1.6 1.6 0 1 1-3.1 0 1.6 1.6 0 0 1 3.1 0Z"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 gugahlins — todos os blocos reservados.</span>
+    <span>Feito com café e alguns takes que não sobreviveram à edição.</span>
+  </footer>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- menu mobile ---------- */
+  var toggle = document.getElementById('navToggle');
+  var nav = document.getElementById('siteNav');
+  toggle.addEventListener('click', function(){
+    nav.classList.toggle('open');
+    toggle.classList.toggle('open');
+    toggle.setAttribute('aria-label', nav.classList.contains('open') ? 'Fechar menu' : 'Abrir menu');
+  });
+  nav.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){
+      nav.classList.remove('open');
+      toggle.classList.remove('open');
+      toggle.setAttribute('aria-label', 'Abrir menu');
+    });
+  });
+
+  /* ---------- reveal on scroll ---------- */
+  var revealEls = document.querySelectorAll('[data-reveal], [data-reveal-stagger]');
+  if('IntersectionObserver' in window && !reduceMotion){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, {threshold:0.15, rootMargin:'0px 0px -60px 0px'});
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* stagger interno dos cards */
+  document.querySelectorAll('[data-reveal-stagger] > *').forEach(function(el, i){
+    el.style.transitionDelay = (i * 90) + 'ms';
+  });
+
+  /* ---------- scrollspy no menu ---------- */
+  var sections = document.querySelectorAll('main section[id]');
+  var links = document.querySelectorAll('.nav-links a');
+  var spy = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      var id = entry.target.getAttribute('id');
+      var link = document.querySelector('.nav-links a[href="#' + id + '"]');
+      if(!link) return;
+      if(entry.isIntersecting){
+        links.forEach(function(l){ l.classList.remove('active'); });
+        link.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-45% 0px -45% 0px'});
+  sections.forEach(function(s){ spy.observe(s); });
+
+  /* ---------- tocar vídeo real ao clicar na miniatura ---------- */
+  document.querySelectorAll('.short-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      if(card.querySelector('iframe')) return; // já tocando
+      var id = card.getAttribute('data-id');
+      var iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube.com/embed/' + id + '?playsinline=1&rel=0&modestbranding=1';
+      iframe.title = 'Vídeo do canal gugahlins';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      iframe.allowFullscreen = true;
+      card.innerHTML = '';
+      card.appendChild(iframe);
+    });
+  });
+
+  /* ---------- arraste com o mouse na faixa de vídeos ---------- */
+  var videoScroll = document.getElementById('videoScroll');
+  if(videoScroll){
+    var isDown = false, startX = 0, startScroll = 0, dragged = false;
+    videoScroll.addEventListener('mousedown', function(e){
+      isDown = true; dragged = false;
+      startX = e.pageX;
+      startScroll = videoScroll.scrollLeft;
+    });
+    window.addEventListener('mouseup', function(){ isDown = false; });
+    window.addEventListener('mousemove', function(e){
+      if(!isDown) return;
+      var delta = e.pageX - startX;
+      if(Math.abs(delta) > 4) dragged = true;
+      videoScroll.scrollLeft = startScroll - delta;
+    });
+    // evita que um arraste vire clique acidental no iframe
+    videoScroll.addEventListener('click', function(e){
+      if(dragged){ e.preventDefault(); e.stopPropagation(); }
+    }, true);
+  }
+
+  /* ---------- rolagem suave com inércia (sem lib externa) ---------- */
+  if(!reduceMotion && !window.matchMedia('(max-width: 820px)').matches){
+    var current = window.scrollY;
+    var target = window.scrollY;
+    var ease = 0.085;
+    var raf = null;
+    var maxScroll = function(){
+      return document.documentElement.scrollHeight - window.innerHeight;
+    };
+
+    function onWheel(e){
+      if(e.target.closest('#videoScroll')) return; // deixa a faixa de vídeos rolar na horizontal livremente
+      e.preventDefault();
+      target += e.deltaY;
+      target = Math.max(0, Math.min(target, maxScroll()));
+      if(!raf) raf = requestAnimationFrame(update);
+    }
+
+    function update(){
+      current += (target - current) * ease;
+      if(Math.abs(target - current) < 0.5){
+        current = target;
+        window.scrollTo(0, current);
+        raf = null;
+        return;
+      }
+      window.scrollTo(0, current);
+      raf = requestAnimationFrame(update);
+    }
+
+    window.addEventListener('wheel', onWheel, {passive:false});
+
+    // mantém o alvo sincronizado quando o usuário navega por âncora/teclado
+    window.addEventListener('scroll', function(){
+      if(!raf){
+        current = window.scrollY;
+        target = window.scrollY;
+      }
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(function(a){
+      a.addEventListener('click', function(e){
+        var href = a.getAttribute('href');
+        if(href.length < 2) return;
+        var dest = document.querySelector(href);
+        if(!dest) return;
+        e.preventDefault();
+        target = dest.getBoundingClientRect().top + window.scrollY;
+        target = Math.max(0, Math.min(target, maxScroll()));
+        if(!raf) raf = requestAnimationFrame(update);
+      });
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
