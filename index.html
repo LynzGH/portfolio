@@ -438,7 +438,10 @@ main{margin-left:var(--nav-w);}
 }
 
 /* ============ EDIÇÕES EM DESTAQUE ============ */
-.edits-grid{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:48px; align-items:start;}
+.edits-grid{display:grid; grid-template-columns:minmax(0,1fr); gap:48px;}
+.edits-long{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px;}
+.edits-long .short-card.wide{width:100%; aspect-ratio:16/9;}
+.edits-row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:48px; align-items:start;}
 .edits-points{list-style:none; display:grid; gap:22px; counter-reset:edit;}
 .edits-points li{counter-increment:edit; padding-left:52px; position:relative; font-family:var(--font-read); letter-spacing:normal; color:var(--text-dim); line-height:1.7;}
 .edits-points li::before{content:"0" counter(edit); position:absolute; left:0; top:0; font-family:var(--font-body); font-size:.85rem; letter-spacing:.08em; color:var(--text);}
@@ -446,7 +449,8 @@ main{margin-left:var(--nav-w);}
 .edits-cards{display:flex; gap:20px;}
 .edits-cards .short-card{scroll-snap-align:none;}
 @media(max-width:1050px){
-  .edits-grid{grid-template-columns:1fr; gap:32px;}
+  .edits-long{grid-template-columns:1fr;}
+  .edits-row{grid-template-columns:1fr; gap:32px;}
   .edits-cards{overflow-x:auto; padding-bottom:6px; scrollbar-width:none;}
   .edits-cards::-webkit-scrollbar{display:none;}
 }
@@ -819,15 +823,21 @@ footer{
       <p class="lede">Os vídeos em que a edição faz a diferença: cada corte, efeito e transição está ali pra manter você assistindo até o final.</p>
     </div>
     <div class="edits-grid" data-reveal>
+      <div class="edits-long">
+          <div class="short-card slot wide" data-id="jyHm9qhmHCA"><img src="https://i.ytimg.com/vi/jyHm9qhmHCA/hqdefault.jpg" alt="Miniatura de vídeo editado pelo gugahlins" loading="lazy" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/watch?v=jyHm9qhmHCA" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+          <div class="short-card slot wide" data-id="mTb4g--FaM8"><img src="https://i.ytimg.com/vi/mTb4g--FaM8/hqdefault.jpg" alt="Miniatura de vídeo editado pelo gugahlins" loading="lazy" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/watch?v=mTb4g--FaM8" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+          <div class="short-card slot wide" data-id="cHAtsc6MqH4"><img src="https://i.ytimg.com/vi/cHAtsc6MqH4/hqdefault.jpg" alt="Miniatura de vídeo editado pelo gugahlins" loading="lazy" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/watch?v=cHAtsc6MqH4" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+      </div>
+      <div class="edits-row">
       <ol class="edits-points">
         <li><strong>Ritmo e cortes</strong>Cortes pensados pra segurar a atenção, sem enrolação entre um momento e outro.</li>
         <li><strong>Narrativa na ilha de edição</strong>Roteiro e storytelling ganham forma na montagem: o que entra, o que sai e em que ordem.</li>
         <li><strong>Identidade visual</strong>Composição, legendas, efeitos e thumbnails que dão cara própria a cada vídeo.</li>
       </ol>
       <div class="edits-cards">
-          <div class="short-card slot" data-id="lhOjg_UD7dw"><img src="https://i.ytimg.com/vi/lhOjg_UD7dw/hqdefault.jpg" alt="Miniatura de vídeo editado pelo gugahlins" loading="lazy" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/shorts/lhOjg_UD7dw" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
-          <div class="short-card slot" data-id="AD8tXokriE4"><img src="https://i.ytimg.com/vi/AD8tXokriE4/hqdefault.jpg" alt="Miniatura de vídeo editado pelo gugahlins" loading="lazy" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/shorts/AD8tXokriE4" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
-          <div class="short-card slot" data-id="gZKXyv414zI"><img src="https://i.ytimg.com/vi/gZKXyv414zI/hqdefault.jpg" alt="Miniatura de vídeo editado pelo gugahlins" loading="lazy" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/shorts/gZKXyv414zI" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+          <div class="short-card slot" data-id="Hk2y5oiiHak"><img src="https://i.ytimg.com/vi/Hk2y5oiiHak/hqdefault.jpg" alt="Miniatura de vídeo editado pelo gugahlins" loading="lazy" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/shorts/Hk2y5oiiHak" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+          <div class="short-card slot" data-id="g8ezVW6K4bE"><img src="https://i.ytimg.com/vi/g8ezVW6K4bE/hqdefault.jpg" alt="Miniatura de vídeo editado pelo gugahlins" loading="lazy" onerror="this.closest('.short-card').classList.add('img-fail')"><button class="short-play" aria-label="Assistir vídeo"><span></span></button><a class="short-fallback" href="https://www.youtube.com/shorts/g8ezVW6K4bE" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir no YouTube ↗</a></div>
+      </div>
       </div>
     </div>
   </section>
